@@ -1,5 +1,5 @@
-       package Interfaz;
-	import javax.swing.*;
+package Interfaz;
+import javax.swing.*;
 	import java.awt.*;
 	import java.awt.event.ActionEvent;
 	import java.awt.event.ActionListener;
@@ -7,7 +7,7 @@
 	import java.util.List;
 	import Conector.Conexion;
         import java.sql.*;
-	
+        import Tablas.Tablas;	
 	public class Principal {
 		//Declaracion de las variables
             
@@ -22,6 +22,7 @@
 	    private final JPanel crearTablasPanel;
 	    private final JPanel inicioPanel;
 	    private final JPanel leftPanel; 
+	    private final JLabel label;
 	    private JTextField nombreTablaTextField;
 	    private JSpinner caracteresEspecialesSpinner;
             String host;
@@ -29,17 +30,24 @@
             String usuario;
             String contrasena;
             String Database;
+            String nombretabla;
+            String numcolum;
+            String nombrecolumna;
+            String TipoColumna;
+            String base;
             JTextArea displayArea = new JTextArea(20, 40);
 	    //Clase principal del JFrame
 	    public Principal() {
 //-----------------------------------------------------------------------------------------------------
 	    	//Se crea la ventana principal del programa
-	        frame = new JFrame("Yael AG mi SQL ");
+	        frame = new JFrame("My sql AUUUUU");
 	        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        frame.setSize(800, 600);
-	        frame.getContentPane().setBackground(new Color(0, 162, 255));  // establece el color de fondo del contenedor principal del JFrame en un tono de azul claro.
+	        frame.getContentPane().setBackground(new Color(190, 140, 190));  // establece el color de fondo del contenedor principal del JFrame en un tono de azul claro.
 	        frame.setLocationRelativeTo(null);
-               
+                ImageIcon icon = new ImageIcon(Principal.class.getResource("/interfaz/bd.png")); // Cambia la ruta a la ubicación de tu icono
+                Image image = icon.getImage();
+                frame.setIconImage(image);
 //-----------------------------------------------------------------------------------------------------
 	      
 	        //-----------------------------------------------------------------------------------------------------	        
@@ -59,13 +67,13 @@
 	   
 	        // se asigna el administrador de diseños
 	        mainPanel = new JPanel(new CardLayout()); //CardLayout es un tipo de administrador de diseño que permite mostrar un componente a la vez, ocupando todo el espacio del contenedor.
-	        mainPanel.setBackground(Color.WHITE); //Se asigna un fondo
+	        mainPanel.setBackground(Color.getHSBColor(190, 140, 190)); //Se asigna un fondo
 	      //-----------------------------------------------------------------------------------------------------	        
 	        
 	        //-----------------------------------------------------------------------------------------------------
 	        // Panel para "Conectar a BD"
 	        conectarPanel = new JPanel();
-	        conectarPanel.setBackground(new Color(04, 105, 234)); //Color del panel conectar
+	        conectarPanel.setBackground(new Color(190, 140, 190)); //Color del panel conectar
 	        GroupLayout conectarLayout = new GroupLayout(conectarPanel); //GroupLayout es un administrador de diseño, nos ayuda a ordenar vertical u horizontalmente los objetos, conectar panel tendra este diseño
 	        conectarPanel.setLayout(conectarLayout); //A través de esta línea, se indica que el GroupLayout será responsable de organizar los componentes en el conectarPanel
 	        conectarLayout.setAutoCreateGaps(true); //habilita la creación automática de espacios entre los componentes dentro de los grupos en el GroupLayout.
@@ -156,24 +164,6 @@
                     Conexion con = new Conexion();
                     con.connect(host, puerto, usuario, contrasena);
                 });
-               
-                    testButton.addActionListener((ActionEvent e) -> {
-                    setHost(direccionTextField.getText());
-                    setPuerto(puertoTextField.getText());
-                    setUsuario(usuarioTextField.getText());
-                    setContrasena(contrasenaField.getText());
-                    // Verifica que los campos no estén vacíos
-                    if (host.isEmpty() || puerto.isEmpty() || usuario.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos.");
-                        return;  // No intentes conectarte si faltan datos
-                    } else{
-                        initDatabaseConnection();
-                    }
-                    
-                    // Intenta establecer la conexión
-                    Conexion con = new Conexion();
-                    con.connect(host, puerto, usuario, contrasena);
-                });
                 
 //-----------------------------------------------------------------------------------------------------------------------------
 
@@ -182,7 +172,7 @@
 	      //-----------------------------------------------------------------------------------------------------	        
 	        // Panel para "Crear una Bd"
 	        crearBdPanel = new JPanel();
-	        crearBdPanel.setBackground(new Color(173, 216, 230));
+	        crearBdPanel.setBackground(new Color(190, 140, 190));
 
 	        GroupLayout crearBdLayout = new GroupLayout(crearBdPanel);
 	        crearBdPanel.setLayout(crearBdLayout);
@@ -198,6 +188,7 @@
 	        JButton cancelarBdButton = new JButton("Cancelar");
 	        cancelarBdButton.setBackground(new Color(255, 0, 0));
 	        cancelarBdButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                
 	      //-----------------------------------------------------------------------------------------------------	        
 	        
 	      //-----------------------------------------------------------------------------------------------------	        
@@ -226,12 +217,19 @@
 	                        .addComponent(cancelarBdButton)
 	                )
 	        );
+                
+                crearBdButton.addActionListener(new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent e) {
+	                       crearbase(nombreTextField.getText());
+	            }
+	        });
 	      //-----------------------------------------------------------------------------------------------------	        
-	        
+	     
 	      //-----------------------------------------------------------------------------------------------------	        
 	        // Panel para "Crear tablas de bd"
 	        crearTablasPanel = new JPanel();
-	        crearTablasPanel.setBackground(new Color(214, 23, 234));
+	        crearTablasPanel.setBackground(new Color(190, 140, 190));
 
 	        GroupLayout crearTablasLayout = new GroupLayout(crearTablasPanel);
 	        crearTablasPanel.setLayout(crearTablasLayout);
@@ -241,8 +239,9 @@
 	        
 	      //-----------------------------------------------------------------------------------------------------	        
 	        // ComboBox para bases de datos
-	        JComboBox<String> basesDeDatosComboBox = new JComboBox<>(new String[]{"Base de Datos 1", "Base de Datos 2", "Base de Datos 3"});
-	        JLabel nombreTablaLabel = new JLabel("Nombre de la tabla:");
+	        JComboBox<String> basesDeDatosComboBox = new JComboBox<>(new String[]{"BasedeDatos1", "Base de Datos 2", "Base de Datos 3"});
+	               
+                JLabel nombreTablaLabel = new JLabel("Nombre de la tabla:");
 	        JTextField nombreTablaTextField = new JTextField(10);
 	        JLabel cantidadColumnasLabel = new JLabel("Cantidad de columnas:");
 	        SpinnerModel spinnerModel = new SpinnerNumberModel(1, 1, 15, 1);
@@ -290,13 +289,32 @@
 	                .addGroup(crearTablasLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
 	                        .addComponent(cancelarTablaButton)
 	                )
+                        
 	        );
 	      //-----------------------------------------------------------------------------------------------------	        
-	        
+	        crearTablaButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       // Reemplaza esto con la forma en que obtienes tu conexión a la base de datos
+  Conexion con = new Conexion();
+                   
+        // Verifica que tengas una conexión válida antes de continuar
+        if (con == null) {
+            JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión a la base de datos.");
+            return;
+        }
+
+//        crearTabla(con, nombreTablaTextField, cantidadColumnasSpinner, dataTypeComboBoxes);
+    }
+});
+
 	      //-----------------------------------------------------------------------------------------------------	        
 	        crearTablaButton.addActionListener(new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent e) {
+                        setBase(basesDeDatosComboBox.getSelectedItem().toString());
+                        setNombretabla(nombreTablaTextField.getText());
+                        setNumcolum(cantidadColumnasSpinner.getValue().toString());
 	                showTableInfoDialog(nombreTablaTextField.getText(), (int) cantidadColumnasSpinner.getValue());
 	            }
 	        });
@@ -306,14 +324,17 @@
 	        // Panel para "Inicio"
 	        
 	        inicioPanel = new JPanel();
-	        inicioPanel.setBackground(new Color(255, 145, 0));
+	        inicioPanel.setBackground(new Color(190, 140, 190));
 	        GroupLayout inicioLayout = new GroupLayout(inicioPanel);
 	        inicioPanel.setLayout(inicioLayout);
 	        inicioLayout.setAutoCreateGaps(true);
 	        inicioLayout.setAutoCreateContainerGaps(true);
-                JLabel inicioTextLabel = new JLabel("¡Bienvenido a mi SQL \n!"
-                        + "Si jala pago pension \n");
-                JLabel inicioTextLabel2 = new JLabel("¡Si se puede le pago la pension a mi hijo \n!");
+
+	        ImageIcon icono = new ImageIcon(Principal.class.getResource("/interfaz/logo.png"));
+	        label = new JLabel(icono);
+	        label.setHorizontalAlignment(SwingConstants.RIGHT);  // Centrar horizontalmente
+	        label.setVerticalAlignment(SwingConstants.CENTER);  // Centrar verticalmente
+	        JLabel inicioTextLabel = new JLabel("¡Bienvenido a Tu propio SQL !");
 	        inicioTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	        inicioTextLabel.setFont(new Font("Arial", Font.BOLD, 24));
 	        inicioTextLabel.setForeground(Color.BLACK);
@@ -322,12 +343,13 @@
 	      //-----------------------------------------------------------------------------------------------------	        
 	        inicioLayout.setHorizontalGroup(inicioLayout.createSequentialGroup()
 	                .addGroup(inicioLayout.createParallelGroup(GroupLayout.Alignment.CENTER)  // Alineación centrada
-	                      
+	                        .addComponent(label)
 	                        .addComponent(inicioTextLabel)
 	                )
 	        );
 
 	        inicioLayout.setVerticalGroup(inicioLayout.createSequentialGroup()
+	                .addComponent(label)
 	                .addComponent(inicioTextLabel)
 	        );
 	      //-----------------------------------------------------------------------------------------------------	        
@@ -345,10 +367,10 @@
 	        
 	        leftPanel = new JPanel();
 	        leftPanel.setPreferredSize(new Dimension(200, 0));
-	        leftPanel.setBackground(new Color(0, 115, 111)); // 
+	        leftPanel.setBackground(new Color(190, 140, 190)); // 
 	 
-	        JLabel leftLabel = new JLabel("Aqui deben de aparecer las bd");
-	        leftLabel.setForeground(Color.WHITE);
+	        JLabel leftLabel = new JLabel("Bases de Datos:");
+	        leftLabel.setForeground(Color.BLACK);
 	        leftPanel.add(leftLabel);
                 
                 
@@ -363,6 +385,19 @@
 
 	        frame.setVisible(true);
 	    }
+            
+            private void crearbase(String basesita){
+                String base = basesita;
+                Conexion con = new Conexion();
+                con.connect(host, puerto, usuario, contrasena);
+                con.crearbasededatos(base);
+            }
+            
+            private void creartabla(){
+            Conexion con = new Conexion();
+            con.connect(host, puerto, usuario, contrasena);
+            }
+            
             
 private void initDatabaseConnection() {
     try {
@@ -430,7 +465,6 @@ private void displayTablesOfDatabase(String dbName) {
         displayArea.revalidate(); 
 
         // Cierra la conexión
-        connection.close();
 
     } catch (SQLException e) {
         e.printStackTrace();
@@ -466,7 +500,7 @@ private void displayDatabaseList() {
         databaseButtonsPanel.add(backButton);
 
         // Cierra la conexión
-        connection.close();
+       
 
         // Repinta la ventana para reflejar los cambios
         displayArea.revalidate();  
@@ -497,64 +531,124 @@ private void displayDatabaseList() {
 	        cardLayout.show(mainPanel, selectedOption);
 	    }
 	  //-----------------------------------------------------------------------------------------------------	        
-	    
+	    public class ColumnInfo {
+    private String columnName;
+    private String dataType;
+    private boolean isPK;
+    private boolean isFK;
+    private boolean isUK;
+
+    public ColumnInfo(String columnName, String dataType, boolean isPK, boolean isFK, boolean isUK) {
+        this.columnName = columnName;
+        this.dataType = dataType;
+        this.isPK = isPK;
+        this.isFK = isFK;
+        this.isUK = isUK;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public boolean isPK() {
+        return isPK;
+    }
+
+    public boolean isFK() {
+        return isFK;
+    }
+
+    public boolean isUK() {
+        return isUK;
+    }
+}
 	  //-----------------------------------------------------------------------------------------------------	        
 	    
-	    private void showTableInfoDialog(String tableName, int columnsCount) {
-	        JFrame tableInfoFrame = new JFrame("Información de la tabla");
-	        tableInfoFrame.setSize(500, 500);
-	        tableInfoFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	  private void showTableInfoDialog(String tableName, int columnsCount) {
+    JFrame tableInfoFrame = new JFrame("Información de la tabla");
+    tableInfoFrame.setSize(500, 500);
+    tableInfoFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-	        JPanel tableInfoPanel = new JPanel();
-	        tableInfoPanel.setLayout(new BorderLayout());
+    JPanel tableInfoPanel = new JPanel();
+    tableInfoPanel.setLayout(new BorderLayout());
 
-	        JLabel tableNameLabel = new JLabel("Nombre de la tabla: " + tableName);
-	        JLabel columnsCountLabel = new JLabel("Cantidad de columnas: " + columnsCount);
+    JLabel tableNameLabel = new JLabel("Nombre de la tabla: " + tableName);
+    JLabel columnsCountLabel = new JLabel("Cantidad de columnas: " + columnsCount);
 
-	        JPanel dataPanel = new JPanel(new GridLayout(columnsCount, 4));
-	        List<JTextField> textFieldList = new ArrayList<>();
-	      //-----------------------------------------------------------------------------------------------------	        
-	        for (int i = 0; i < columnsCount; i++) {
-	            JLabel columnNameLabel = new JLabel("Columna " + (i + 1) + ":");
-	            JTextField textField = new JTextField(10);
-	            JComboBox<String> dataTypeComboBox = new JComboBox<>(new String[]{"string", "int", "float", "boolean", "date", "time", "varchar"});
-	            JCheckBox pkCheckBox = new JCheckBox("PK");
-	            JCheckBox fkCheckBox = new JCheckBox("FK");
-	            JCheckBox ukCheckBox = new JCheckBox("UK");
+    JPanel dataPanel = new JPanel(new GridLayout(columnsCount, 4));
+    List<JTextField> textFieldList = new ArrayList<>();
+    List<JComboBox<String>> dataTypeComboBoxes = new ArrayList<>();
+    List<JCheckBox> pkCheckBoxes = new ArrayList<>();
+    List<JCheckBox> fkCheckBoxes = new ArrayList<>();
+    List<JCheckBox> ukCheckBoxes = new ArrayList<>();
 
-	            dataPanel.add(columnNameLabel);
-	            dataPanel.add(textField);
-	            dataPanel.add(dataTypeComboBox);
-	            dataPanel.add(pkCheckBox);
-	            dataPanel.add(fkCheckBox);
-	            dataPanel.add(ukCheckBox);
+    for (int i = 0; i < columnsCount; i++) {
+        JLabel columnNameLabel = new JLabel("Columna " + (i + 1) + ":");
+        JTextField textField = new JTextField(10);
+        JComboBox<String> dataTypeComboBox = new JComboBox<>(new String[]{"string", "int", "float", "boolean", "date", "time", "varchar"});
+        JCheckBox pkCheckBox = new JCheckBox("PK");
+        JCheckBox fkCheckBox = new JCheckBox("FK");
+        JCheckBox ukCheckBox = new JCheckBox("UK");
 
-	            textFieldList.add(textField);
-	        }
-	      //-----------------------------------------------------------------------------------------------------	        
-	        
-	      //-----------------------------------------------------------------------------------------------------	        
-	        JPanel infoDisplayPanel = new JPanel();
-	        infoDisplayPanel.setLayout(new BorderLayout());
-	        infoDisplayPanel.add(tableNameLabel, BorderLayout.NORTH);
-	        infoDisplayPanel.add(columnsCountLabel, BorderLayout.CENTER);
-	        infoDisplayPanel.add(dataPanel, BorderLayout.SOUTH);
+        dataPanel.add(columnNameLabel);
+        dataPanel.add(textField);
+        dataPanel.add(dataTypeComboBox);
+        dataPanel.add(pkCheckBox);
+        dataPanel.add(fkCheckBox);
+        dataPanel.add(ukCheckBox);
 
-	        JScrollPane scrollPane = new JScrollPane(infoDisplayPanel);
-	        tableInfoPanel.add(scrollPane, BorderLayout.CENTER);
+        textFieldList.add(textField);
+        dataTypeComboBoxes.add(dataTypeComboBox);
+        pkCheckBoxes.add(pkCheckBox);
+        fkCheckBoxes.add(fkCheckBox);
+        ukCheckBoxes.add(ukCheckBox);
+    }
 
-	        JButton closeButton = new JButton("Cerrar");
-	        closeButton.addActionListener(new ActionListener() {
-	            @Override
-	            public void actionPerformed(ActionEvent e) {
-	                tableInfoFrame.dispose();
-	            }
-	        });
-	        tableInfoPanel.add(closeButton, BorderLayout.SOUTH);
+    JPanel infoDisplayPanel = new JPanel();
+    infoDisplayPanel.setLayout(new BorderLayout());
+    infoDisplayPanel.add(tableNameLabel, BorderLayout.NORTH);
+    infoDisplayPanel.add(columnsCountLabel, BorderLayout.CENTER);
+    infoDisplayPanel.add(dataPanel, BorderLayout.SOUTH);
 
-	        tableInfoFrame.add(tableInfoPanel);
-	        tableInfoFrame.setVisible(true);
-	    }
+    JScrollPane scrollPane = new JScrollPane(infoDisplayPanel);
+    tableInfoPanel.add(scrollPane, BorderLayout.CENTER);
+
+    JButton closeButton = new JButton("Crear");
+    closeButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            List<ColumnInfo> columnInfoList = new ArrayList<>();
+
+            for (int i = 0; i < columnsCount; i++) {
+                String columnName = textFieldList.get(i).getText();
+                String dataType = (String) dataTypeComboBoxes.get(i).getSelectedItem();
+                boolean isPK = pkCheckBoxes.get(i).isSelected();
+                boolean isFK = fkCheckBoxes.get(i).isSelected();
+                boolean isUK = ukCheckBoxes.get(i).isSelected();
+
+                ColumnInfo columnInfo = new ColumnInfo(columnName, dataType, isPK, isFK, isUK);
+                columnInfoList.add(columnInfo);
+            }
+
+            Tablas tab = new Tablas();
+            Conexion con = new Conexion();
+            con.connect(host, puerto, usuario, contrasena);
+            con.cambiarBaseDeDatos(getBase());
+//            tab.crearTabla(con.getConnection(), getNombretabla(), getNumcolum(), columnInfoList);
+            tableInfoFrame.dispose();
+        }
+    });
+
+    tableInfoPanel.add(closeButton, BorderLayout.SOUTH);
+
+    tableInfoFrame.add(tableInfoPanel);
+    tableInfoFrame.setVisible(true);
+}
+
             
             private void mostrarInfoBaseDatos(String nombreBD) {
     // Aquí puedes agregar la lógica para mostrar información sobre la base de datos
@@ -606,6 +700,49 @@ private void mostrarInfoTabla(String nombreTabla) {
     public String getDatabase() {
         return Database;
     }
+
+    public String getNumcolum() {
+        return numcolum;
+    }
+
+    public void setNumcolum(String numcolum) {
+        this.numcolum = numcolum;
+    }
+
+    public String getNombrecolumna() {
+        return nombrecolumna;
+    }
+
+    public void setNombrecolumna(String nombrecolumna) {
+        this.nombrecolumna = nombrecolumna;
+    }
+
+    public String getNombretabla() {
+        return nombretabla;
+    }
+
+    public void setNombretabla(String nombretabla) {
+        this.nombretabla = nombretabla;
+    }
+
+    public String getTipoColumna() {
+        return TipoColumna;
+    }
+
+    public void setTipoColumna(String TipoColumna) {
+        this.TipoColumna = TipoColumna;
+    }
+
+    public String getBase() {
+        return base;
+    }
+
+    public void setBase(String base) {
+        this.base = base;
+    }
+    
+    
+    
 
 	  //-----------------------------------------------------------------------------------------------------	        
 	    public static void main(String[] args) {
